@@ -16,7 +16,10 @@ class AssetTransfer extends Contract {
         let color = ""
         let org = ""
         let marble = {}
-        console.log(ctx.stub.getCreator());
+        let marbleJSON = await ctx.stub.getState(id);
+        if(marbleJSON.length !== 0)
+            return JSON.stringify(`The marble with id: ${id} already exist`);
+        
         if(cid.getMSPID() === "Org1MSP"){
             color = "red"
             org = "Org1"
@@ -25,6 +28,7 @@ class AssetTransfer extends Contract {
             color = "blue"
             org = "Org2"
         }
+
         marble = {
             id: id,
             marbleName: `${id}_${color}`,
@@ -43,12 +47,22 @@ class AssetTransfer extends Contract {
         return JSON.parse(marbleJSON);
     }
 
-    async buyMarble(ctx, id, newOwner) {
+    async sellMarble(ctx, id, newOwner) {
+        let org = { "Org1MSP": "Org1", "Org2MSP": "Org2" };
+        let cid = new ClientIdentity(ctx.stub); 
+        let mspid = cid.getMSPID();
         let marble = await this.getMarbleByID(ctx, id); 
-        if(marble.currentOwner === newOwner)
-            throw new Error(`Marble with id:${id} is already purchased`);
-        marble.currentOwner = newOwner;
-        return ctx.stub.putState(id, Buffer.from(JSON.stringify(marble)));
+        if(marble.currentOwner === newOwner){
+            return JSON.stringify(`Cant sell Marble to same organization`);
+        }
+        if(marble.currentOwner === org[mspid]){
+            marble.currentOwner = newOwner;
+            ctx.stub.putState(id, Buffer.from(JSON.stringify(marble)));
+            return JSON.stringify(marble);
+        }
+        else{
+            return JSON.stringify(`Marble with id:${id} is not present with ${org[mspid]}`);
+        }
     }
 
     async getAllMarbles(ctx) {
