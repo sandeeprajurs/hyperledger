@@ -25,7 +25,7 @@ async function initilize() {
 
         const wallet = await buildWallet(Wallets, walletPath);
         await enrollAdmin(caClient, wallet, mspOrg1);
-        await registerAndEnrollUser(caClient, wallet, mspOrg1, org2UserId, 'org1.department1');
+        await registerAndEnrollUser(caClient, wallet, mspOrg1, org1UserId, 'org1.department1');
         const gateway = new Gateway();
 
         await gateway.connect(ccp, {
@@ -85,7 +85,7 @@ app.post('/manufacture', async (req, res) => {
     let contract = init[0];
     let gateway = init[1];
     console.log('\n--> Manufacture Marble');
-    let result = await contract.submitTransaction('createNewMarble', req.headers.id, req.headers.org);
+    let result = await contract.submitTransaction('createNewMarble', req.headers.id);
     console.log(`*** Result: ${result.toString()}`);
     disconnectGateWay(gateway);
     res.send(JSON.parse(result.toString()));

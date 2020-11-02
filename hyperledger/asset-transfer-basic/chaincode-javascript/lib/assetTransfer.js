@@ -7,18 +7,24 @@
 'use strict';
 
 const { Contract } = require('fabric-contract-api');
-// const ClientIdentity = require('fabric-shim').ClientIdentity;
+const ClientIdentity = require('fabric-shim').ClientIdentity;
 
 class AssetTransfer extends Contract {
 
-    async createNewMarble(ctx, id, org) {
+    async createNewMarble(ctx, id) {
+        let cid = new ClientIdentity(ctx.stub); 
         let color = ""
+        let org = ""
         let marble = {}
-        if(org === "Org1")
+        console.log(ctx.stub.getCreator());
+        if(cid.getMSPID() === "Org1MSP"){
             color = "red"
-        else if(org === "Org2")
+            org = "Org1"
+        }   
+        else if(cid.getMSPID() === "Org2MSP"){
             color = "blue"
-
+            org = "Org2"
+        }
         marble = {
             id: id,
             marbleName: `${id}_${color}`,
